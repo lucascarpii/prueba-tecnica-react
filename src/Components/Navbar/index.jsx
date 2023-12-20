@@ -1,6 +1,7 @@
 import { useContext } from "react"
 import { NavLink } from "react-router-dom"
 import { ShoppingCartContext } from "../../Context"
+import { parse } from "postcss"
 
 const Navbar = () => {
   const context = useContext(ShoppingCartContext)
@@ -10,6 +11,13 @@ const Navbar = () => {
   const signOut = localStorage.getItem('sign-out')
   const parsedSignOut = JSON.parse(signOut)
   const isUserSignOut = context.signOut || parsedSignOut
+  // Account
+  const account = localStorage.getItem('account')
+  const parsedAccount = JSON.parse(account)
+  // Has an account
+  const noAccountInLocaleStorage = parsedAccount ? Object.keys(parsedAccount).length === 0 : true
+  const noAccountInLocaleState = context.account ? Object.keys(context.account).length === 0 : true
+  const hasUserAnAccount = !noAccountInLocaleStorage || !noAccountInLocaleState
 
   const handleSignOut = () => {
     const stringifiedSignOut = JSON.stringify(true)
@@ -18,21 +26,7 @@ const Navbar = () => {
   }
 
   const renderView = () => {
-
-    if (isUserSignOut) {
-      return (
-        <li>
-          <NavLink
-            to='/sign-in'
-            className={({ isActive }) =>
-              isActive ? activeStyle : undefined
-            }
-            onClick={() => handleSignOut()}>
-            Sign out
-          </NavLink>
-        </li>
-      )
-    } else {
+    if (hasUserAnAccount && !isUserSignOut) {
       return (
         <>
           <li className="text-black/60">
@@ -60,6 +54,19 @@ const Navbar = () => {
           </li>
         </>
       )
+    } else {
+      return (
+        <li>
+          <NavLink
+            to='/sign-in'
+            className={({ isActive }) =>
+              isActive ? activeStyle : undefined
+            }
+            onClick={() => handleSignOut()}>
+            Sign out
+          </NavLink>
+        </li>
+      )
     }
   }
 
@@ -67,7 +74,7 @@ const Navbar = () => {
     <nav className="flex bg-white justify-between items-center fixed top-0 z-10 w-full py-5 px-8 text-base font-normal font-pop">
       <ul className="flex items-center gap-3">
         <li className="font-bold text-lg">
-          <NavLink to={'/'} >
+          <NavLink to={`${isUserSignOut ? '/sign-in' : '/'}`} >
             Shopi
           </NavLink>
         </li>
@@ -95,13 +102,13 @@ const Navbar = () => {
       <ul className="flex items-center gap-3">
         {renderView()}
         <li className="flex items-center justify-center gap-1">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-              <path d="M2.25 2.25a.75.75 0 000 1.5h1.386c.17 0 .318.114.362.278l2.558 9.592a3.752 3.752 0 00-2.806 3.63c0 .414.336.75.75.75h15.75a.75.75 0 000-1.5H5.378A2.25 2.25 0 017.5 15h11.218a.75.75 0 00.674-.421 60.358 60.358 0 002.96-7.228.75.75 0 00-.525-.965A60.864 60.864 0 005.68 4.509l-.232-.867A1.875 1.875 0 003.636 2.25H2.25zM3.75 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM16.5 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z" />
-            </svg>
-            <div className="text-md leading-none text">
-              {context.cartProducts.length}
-            </div>
-          </li>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+            <path d="M2.25 2.25a.75.75 0 000 1.5h1.386c.17 0 .318.114.362.278l2.558 9.592a3.752 3.752 0 00-2.806 3.63c0 .414.336.75.75.75h15.75a.75.75 0 000-1.5H5.378A2.25 2.25 0 017.5 15h11.218a.75.75 0 00.674-.421 60.358 60.358 0 002.96-7.228.75.75 0 00-.525-.965A60.864 60.864 0 005.68 4.509l-.232-.867A1.875 1.875 0 003.636 2.25H2.25zM3.75 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM16.5 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z" />
+          </svg>
+          <div className="text-md leading-none text">
+            {context.cartProducts.length}
+          </div>
+        </li>
       </ul>
     </nav>
   )
